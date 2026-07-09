@@ -1,0 +1,40 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Customer Lead CRM",
+  "dateExported": "2026-07-07T17:00:00.000Z",
+  "version": "1.1",
+  "folders": [
+    { "name": "Auth", "containerId": "" },
+    { "name": "Leads", "containerId": "" },
+    { "name": "Lead Types", "containerId": "" },
+    { "name": "Dashboard", "containerId": "" }
+  ],
+  "requests": [
+    {
+      "name": "Login",
+      "url": "http://localhost:8080/api/auth/login",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+      },
+      "folderId": "Auth"
+    },
+    {
+      "name": "Get Dashboard Stats",
+      "url": "http://localhost:8080/api/dashboard",
+      "method": "GET",
+      "folderId": "Dashboard"
+    },
+    {
+      "name": "Search Leads",
+      "url": "http://localhost:8080/api/leads/search",
+      "method": "POST",
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"page\": 0,\n  \"size\": 10,\n  \"sortBy\": \"createdDate\",\n  \"sortDir\": \"desc\"\n}"
+      },
+      "folderId": "Leads"
+    }
+  ]
+}

@@ -75,7 +75,7 @@ import { MatTableModule } from '@angular/material/table';
       </div>
       
       <div class="dialog-actions d-flex justify-content-end pt-3 border-top mt-3">
-        <button mat-flat-button color="primary" (click)="close()" class="px-4">OK</button>
+        <button mat-raised-button color="primary" (click)="close()" class="rounded-pill px-4">OK</button>
       </div>
     </div>
   `,

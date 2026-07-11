@@ -32,75 +32,78 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     MatProgressSpinnerModule
   ],
   template: `
-    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4 animate-fade-in-up">
       <div>
         <h1 class="fw-bold h2 mb-1">Lead Types</h1>
         <p class="text-muted small mb-0">Manage different categories of your customer leads</p>
       </div>
-      <button mat-raised-button color="primary" (click)="openForm()">
+      <button mat-raised-button color="primary" class="rounded-pill px-4 border-0" (click)="openForm()">
         <mat-icon>add</mat-icon> Add Lead Type
       </button>
     </div>
 
-    <div class="crm-card p-0 overflow-hidden">
-      <div class="filter-bar p-3 border-bottom d-flex align-items-center">
-        <div class="search-box border rounded px-2 d-flex align-items-center w-100" style="max-width: 400px;">
-          <mat-icon class="text-muted small">search</mat-icon>
-          <input type="text" class="form-control border-0 bg-transparent py-1 shadow-none" 
-                 placeholder="Search lead types..." (keyup)="applyFilter($event)">
-        </div>
+    <!-- Search Panel -->
+    <div class="crm-card mb-4 p-3 shadow-sm animate-fade-in-up">
+      <div class="search-box border rounded px-3 py-1 d-flex align-items-center w-100" style="max-width: 400px; height: 38px;">
+        <mat-icon class="text-muted me-2" style="font-size: 1.1rem; width: 1.1rem; height: 1.1rem;">search</mat-icon>
+        <input type="text" class="form-control border-0 bg-transparent py-1 shadow-none nav-search-input" 
+               placeholder="Search lead types..." (keyup)="applyFilter($event)" style="outline: none;">
+      </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-container animate-fade-in-up">
+      <div class="loading-overlay" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
       </div>
 
-      <div class="table-container position-relative">
-        <div class="loading-overlay" *ngIf="isLoading">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
+      <table mat-table [dataSource]="dataSource" matSort>
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+          <td mat-cell *matCellDef="let element"> #{{element.id}} </td>
+        </ng-container>
 
-        <table mat-table [dataSource]="dataSource" matSort>
-          <!-- ID Column -->
-          <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
-            <td mat-cell *matCellDef="let element"> #{{element.id}} </td>
-          </ng-container>
+        <!-- Type Name Column -->
+        <ng-container matColumnDef="leadTypeName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type Name </th>
+          <td mat-cell *matCellDef="let element" class="fw-bold type-name"> {{element.leadTypeName}} </td>
+        </ng-container>
 
-          <!-- Status Color Map would go here, using default colors for now -->
-          <ng-container matColumnDef="leadTypeName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Type Name </th>
-            <td mat-cell *matCellDef="let element" class="fw-bold type-name"> {{element.leadTypeName}} </td>
-          </ng-container>
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef> Description </th>
+          <td mat-cell *matCellDef="let element" class="desc-text text-wrap"> {{element.description || '-'}} </td>
+        </ng-container>
 
-          <!-- Description Column -->
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef> Description </th>
-            <td mat-cell *matCellDef="let element" class="desc-text"> {{element.description}} </td>
-          </ng-container>
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-end pe-4"> Actions </th>
+          <td mat-cell *matCellDef="let element" class="text-end pe-4">
+            <button mat-icon-button color="primary" (click)="openForm(element)" matTooltip="Edit" aria-label="Edit Type">
+              <mat-icon>edit_note</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="deleteType(element)" matTooltip="Delete" aria-label="Delete Type">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-end"> Actions </th>
-            <td mat-cell *matCellDef="let element" class="text-end">
-              <button mat-icon-button color="primary" (click)="openForm(element)" matTooltip="Edit">
-                <mat-icon>edit_note</mat-icon>
-              </button>
-              <button mat-icon-button color="warn" (click)="deleteType(element)" matTooltip="Delete">
-                <mat-icon>delete_outline</mat-icon>
-              </button>
-            </td>
-          </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="lead-type-row"></tr>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="lead-type-row"></tr>
+        <!-- Row shown when there is no matching data. -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell p-5 text-center text-muted" colspan="4">
+            <div class="py-3">
+              <mat-icon class="fs-1 mb-2 opacity-50" style="width: auto; height: auto;">search_off</mat-icon>
+              <p class="mb-0">{{ isLoading ? 'Loading data...' : 'No lead types match the search query.' }}</p>
+            </div>
+          </td>
+        </tr>
+      </table>
 
-          <!-- Row shown when there is no matching data. -->
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell p-4 text-center text-muted" colspan="4">
-              {{ isLoading ? 'Loading data...' : 'No data matching the filter or table is empty.' }}
-            </td>
-          </tr>
-        </table>
-
-        <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
-      </div>
+      <mat-paginator [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
     </div>
   `,
   styles: [`
@@ -120,23 +123,20 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       border-bottom: 1px solid var(--border) !important;
     }
     .search-box {
-      background-color: var(--bg);
+      background-color: var(--surface);
       border: 1px solid var(--border) !important;
+      transition: var(--transition);
+    }
+    .search-box:focus-within {
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     }
     .search-box input {
       color: var(--text);
+      font-size: 0.875rem;
     }
     .search-box input::placeholder {
       color: var(--text-muted);
-    }
-    th.mat-header-cell {
-      font-weight: 700;
-      color: var(--text-secondary);
-      background-color: var(--table-header-bg) !important;
-      border-bottom: 1px solid var(--border) !important;
-    }
-    td.mat-cell {
-      border-bottom: 1px solid var(--border) !important;
     }
     .type-name {
       color: var(--primary) !important;
@@ -144,8 +144,14 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     .desc-text {
       color: var(--text-secondary) !important;
     }
+    .lead-type-row {
+      transition: var(--transition);
+    }
     .lead-type-row:hover {
       background-color: var(--sidebar-hover-bg) !important;
+    }
+    .text-wrap {
+      white-space: pre-wrap;
     }
   `]
 })

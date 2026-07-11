@@ -15,99 +15,156 @@ import { FollowUp, ApiResponse } from '../../core/models/crm.models';
   standalone: true,
   imports: [CommonModule, MatTabsModule, MatCardModule, MatIconModule, MatListModule, MatButtonModule, RouterModule],
   template: `
-    <div class="mb-4">
+    <div class="mb-4 animate-fade-in-up">
       <h1 class="fw-bold h2 mb-1">Reminders & Follow-ups</h1>
-      <p class="text-muted small">Stay on top of your customer interactions</p>
+      <p class="text-muted small">Stay on top of your customer interactions and follow-ups</p>
     </div>
 
-    <div class="row g-4">
-      <div class="col-lg-4">
-        <mat-card class="reminder-card border-0 shadow-sm border-top border-4 border-primary">
-          <mat-card-header>
-            <mat-icon mat-card-avatar color="primary">today</mat-icon>
-            <mat-card-title class="fw-bold">Today</mat-card-title>
-            <mat-card-subtitle>Due today</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="mt-3">
-            <mat-list>
-              <div *ngIf="today.length === 0" class="text-center py-4 text-muted small">No reminders for today</div>
-              <mat-list-item *ngFor="let f of today" class="mb-2 reminder-item rounded">
-                <mat-icon matListItemIcon color="primary">chevron_right</mat-icon>
-                <div matListItemTitle class="fw-bold small">{{f.discussion | slice:0:30}}...</div>
-                <div matListItemLine class="small text-muted">{{f.followUpDate | date:'shortTime'}}</div>
-                <button mat-icon-button matListItemMeta [routerLink]="['/leads/view', f.leadId]"><mat-icon>visibility</mat-icon></button>
-              </mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
+    <div class="kanban-board animate-fade-in-up">
+      <!-- Today Lane -->
+      <div class="kanban-column">
+        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <mat-icon class="text-primary">today</mat-icon>
+            <span class="fw-bold text-color">Due Today</span>
+          </div>
+          <span class="badge rounded-pill bg-primary-tint text-primary fw-bold" style="font-size: 11px;">{{today.length}}</span>
+        </div>
+        
+        <div class="kanban-content">
+          <div *ngIf="today.length === 0" class="text-center py-5 text-muted small">
+            <i class="bi bi-calendar-check fs-3 d-block opacity-50 mb-2"></i>
+            No reminders due today
+          </div>
+          <div *ngFor="let f of today" class="kanban-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-primary-tint text-primary small">#Lead {{f.leadId}}</span>
+              <span class="small text-muted"><i class="bi bi-clock me-1"></i>{{f.followUpDate | date:'shortTime'}}</span>
+            </div>
+            <p class="small text-color fw-bold mb-3 text-wrap">{{f.discussion}}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge rounded-pill bg-warning-tint text-warning" style="font-size: 9px; letter-spacing: 0.5px;">{{f.status}}</span>
+              <a [routerLink]="['/leads/view', f.leadId]" class="btn btn-outline-primary p-1 border-0 bg-transparent btn-sm" matTooltip="View Lead Profile">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">arrow_forward</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-lg-4">
-        <mat-card class="reminder-card border-0 shadow-sm border-top border-4 border-danger">
-          <mat-card-header>
-            <mat-icon mat-card-avatar class="text-danger">warning</mat-icon>
-            <mat-card-title class="fw-bold text-danger">Overdue</mat-card-title>
-            <mat-card-subtitle>Missed appointments</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="mt-3">
-            <mat-list>
-              <div *ngIf="overdue.length === 0" class="text-center py-4 text-muted small">Great! No overdue follow-ups</div>
-              <mat-list-item *ngFor="let f of overdue" class="mb-2 reminder-item rounded">
-                <mat-icon matListItemIcon class="text-danger">error_outline</mat-icon>
-                <div matListItemTitle class="fw-bold small">{{f.discussion | slice:0:30}}...</div>
-                <div matListItemLine class="small text-muted">{{f.followUpDate | date:'mediumDate'}}</div>
-                <button mat-icon-button matListItemMeta [routerLink]="['/leads/view', f.leadId]"><mat-icon>visibility</mat-icon></button>
-              </mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
+      <!-- Overdue Lane -->
+      <div class="kanban-column">
+        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <mat-icon class="text-danger">warning</mat-icon>
+            <span class="fw-bold text-danger">Overdue Tasks</span>
+          </div>
+          <span class="badge rounded-pill bg-danger-tint text-danger fw-bold" style="font-size: 11px;">{{overdue.length}}</span>
+        </div>
+        
+        <div class="kanban-content">
+          <div *ngIf="overdue.length === 0" class="text-center py-5 text-muted small">
+            <i class="bi bi-emoji-smile fs-3 d-block opacity-50 mb-2"></i>
+            No overdue tasks
+          </div>
+          <div *ngFor="let f of overdue" class="kanban-card" style="border-left: 3px solid var(--danger);">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-danger-tint text-danger small">#Lead {{f.leadId}}</span>
+              <span class="small text-danger fw-bold"><i class="bi bi-calendar-x me-1"></i>{{f.followUpDate | date:'mediumDate'}}</span>
+            </div>
+            <p class="small text-color fw-bold mb-3 text-wrap">{{f.discussion}}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge rounded-pill bg-danger-tint text-danger" style="font-size: 9px; letter-spacing: 0.5px;">{{f.status}}</span>
+              <a [routerLink]="['/leads/view', f.leadId]" class="btn btn-outline-primary p-1 border-0 bg-transparent btn-sm" matTooltip="View Lead Profile">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">arrow_forward</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="col-lg-4">
-        <mat-card class="reminder-card border-0 shadow-sm border-top border-4 border-info">
-          <mat-card-header>
-            <mat-icon mat-card-avatar color="accent">upcoming</mat-icon>
-            <mat-card-title class="fw-bold">Upcoming</mat-card-title>
-            <mat-card-subtitle>Next 7 days</mat-card-subtitle>
-          </mat-card-header>
-          <mat-card-content class="mt-3">
-            <mat-list>
-              <div *ngIf="upcoming.length === 0" class="text-center py-4 text-muted small">No upcoming follow-ups</div>
-              <mat-list-item *ngFor="let f of upcoming" class="mb-2 reminder-item rounded">
-                <mat-icon matListItemIcon color="accent">calendar_today</mat-icon>
-                <div matListItemTitle class="fw-bold small">{{f.discussion | slice:0:30}}...</div>
-                <div matListItemLine class="small text-muted">{{f.followUpDate | date:'mediumDate'}}</div>
-                <button mat-icon-button matListItemMeta [routerLink]="['/leads/view', f.leadId]"><mat-icon>visibility</mat-icon></button>
-              </mat-list-item>
-            </mat-list>
-          </mat-card-content>
-        </mat-card>
+      <!-- Upcoming Lane -->
+      <div class="kanban-column">
+        <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <mat-icon class="text-success">event</mat-icon>
+            <span class="fw-bold text-success">Upcoming Tasks</span>
+          </div>
+          <span class="badge rounded-pill bg-success-tint text-success fw-bold" style="font-size: 11px;">{{upcoming.length}}</span>
+        </div>
+        
+        <div class="kanban-content">
+          <div *ngIf="upcoming.length === 0" class="text-center py-5 text-muted small">
+            <i class="bi bi-calendar fs-3 d-block opacity-50 mb-2"></i>
+            No upcoming interactions scheduled
+          </div>
+          <div *ngFor="let f of upcoming" class="kanban-card" style="border-left: 3px solid var(--success);">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-success-tint text-success small">#Lead {{f.leadId}}</span>
+              <span class="small text-muted"><i class="bi bi-calendar-check me-1"></i>{{f.followUpDate | date:'mediumDate'}}</span>
+            </div>
+            <p class="small text-color fw-bold mb-3 text-wrap">{{f.discussion}}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge rounded-pill bg-success-tint text-success" style="font-size: 9px; letter-spacing: 0.5px;">{{f.status}}</span>
+              <a [routerLink]="['/leads/view', f.leadId]" class="btn btn-outline-primary p-1 border-0 bg-transparent btn-sm" matTooltip="View Lead Profile">
+                <mat-icon style="font-size: 18px; width: 18px; height: 18px;">arrow_forward</mat-icon>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   `,
   styles: [`
-    .reminder-card {
-      background-color: var(--surface) !important;
-      color: var(--text) !important;
+    .text-color {
+      color: var(--text);
     }
-    .reminder-card mat-card-title {
-      color: var(--text) !important;
-    }
-    .reminder-card mat-card-subtitle {
-      color: var(--text-secondary) !important;
-    }
-    .reminder-item {
+    .bg-light {
       background-color: var(--surface-2) !important;
-      color: var(--text) !important;
     }
-    .reminder-item div[matListItemTitle] {
-      color: var(--text) !important;
+    .lane-card {
+      background-color: var(--surface) !important;
+      min-height: 480px;
     }
-    .reminder-item div[matListItemLine] {
+    .lane-header {
+      border-color: var(--border) !important;
+    }
+    .lane-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .primary-box { background-color: var(--primary-tint); color: var(--primary); }
+    .danger-box { background-color: var(--danger-tint); color: var(--danger); }
+    .success-box { background-color: var(--accent-tint); color: var(--accent); }
+    
+    .reminder-item-card {
+      background-color: var(--surface) !important;
+      border: 1px solid var(--border) !important;
+      border-left: 3px solid var(--primary) !important;
+      transition: var(--transition);
+    }
+    .reminder-item-card.overdue-border {
+      border-left: 3px solid var(--danger) !important;
+    }
+    .reminder-item-card.success-border {
+      border-left: 3px solid var(--accent) !important;
+    }
+    .reminder-item-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md) !important;
+      background-color: var(--surface-2) !important;
+    }
+    .view-btn {
       color: var(--text-secondary) !important;
+      transition: var(--transition);
     }
-    .reminder-item button {
-      color: var(--text-secondary) !important;
+    .reminder-item-card:hover .view-btn {
+      color: var(--primary) !important;
+      transform: translateX(2px);
     }
   `]
 })

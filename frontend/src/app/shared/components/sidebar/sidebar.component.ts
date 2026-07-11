@@ -8,93 +8,165 @@ import { SidebarService } from '../../../core/services/sidebar.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="sidebar shadow" [class.open]="sidebarService.isOpen()">
-      <div class="logo d-flex align-items-center justify-content-between px-4">
+    <div class="sidebar shadow-lg" [class.open]="sidebarService.isOpen()">
+      <div class="logo d-flex flex-column justify-content-center px-4">
         <div class="d-flex align-items-center">
-          <i class="bi bi-rocket-takeoff-fill fs-3 text-primary me-2"></i>
-          <span class="fs-4 fw-bold">CRM <span class="text-primary">Lead</span></span>
+          <i class="bi bi-hexagon-half fs-3 text-primary me-2 brand-icon"></i>
+          <span class="fs-4 fw-bold logo-text text-white">LeadFlow<span class="text-primary">.</span></span>
         </div>
-        <button class="btn btn-close-sidebar" (click)="sidebarService.close()">
-          <i class="bi bi-x fs-3"></i>
+        <div class="text-muted small brand-subtext mt-0.5">Enterprise Sales Workspace</div>
+        <button class="btn btn-close-sidebar border-0 bg-transparent p-1 text-white position-absolute" (click)="sidebarService.close()" aria-label="Close Sidebar" style="right: 15px; top: 15px;">
+          <i class="bi bi-x fs-2"></i>
         </button>
       </div>
       
-      <div class="nav-links mt-4">
+      <div class="nav-links mt-3">
+        <div class="sidebar-section-header">MAIN</div>
         <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
-          <i class="bi bi-grid-fill me-3"></i> Dashboard
-        </a>
-        <a routerLink="/lead-types" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
-          <i class="bi bi-tags-fill me-3"></i> Lead Types
-        </a>
-        <a routerLink="/leads" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
-          <i class="bi bi-people-fill me-3"></i> Customer Leads
-        </a>
-        <a routerLink="/reminders" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
-          <i class="bi bi-alarm-fill me-3"></i> Reminders
+          <span class="nav-active-bar"></span>
+          <i class="bi bi-speedometer2 me-3 nav-icon"></i> 
+          <span class="nav-text">Dashboard Workspace</span>
         </a>
         
-        <div class="divider mx-4 my-3 text-muted small fw-bold">ADMIN ACTIONS</div>
+        <div class="sidebar-section-header">CRM MODULES</div>
+        <a routerLink="/leads" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
+          <span class="nav-active-bar"></span>
+          <i class="bi bi-person-lines-fill me-3 nav-icon"></i>
+          <span class="nav-text">Customer Leads</span>
+        </a>
+        <a routerLink="/reminders" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
+          <span class="nav-active-bar"></span>
+          <i class="bi bi-calendar-week me-3 nav-icon"></i>
+          <span class="nav-text">Follow-up Board</span>
+        </a>
+        
+        <div class="sidebar-section-header">REPORTS & CONFIG</div>
+        <a routerLink="/lead-types" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
+          <span class="nav-active-bar"></span>
+          <i class="bi bi-pie-chart-fill me-3 nav-icon"></i>
+          <span class="nav-text">Lead Categories</span>
+        </a>
+        
+        <div class="sidebar-section-header">ADMINISTRATION</div>
         <a routerLink="/users" routerLinkActive="active" class="nav-item" (click)="sidebarService.close()">
-          <i class="bi bi-person-badge-fill me-3"></i> Manage Users
+          <span class="nav-active-bar"></span>
+          <i class="bi bi-shield-lock-fill me-3 nav-icon"></i>
+          <span class="nav-text">Staff & Accounts</span>
         </a>
       </div>
     </div>
   `,
   styles: [`
     .sidebar {
-      width: 260px;
+      width: 280px;
       height: 100vh;
       background: var(--sidebar-bg);
-      border-right: 1px solid var(--border-color);
+      border-right: 1px solid var(--sidebar-border);
       position: fixed;
       left: 0;
       top: 0;
       z-index: 1000;
-      transition: background-color 0.3s, border-color 0.3s, left 0.3s ease;
+      transition: background-color 0.2s, border-color 0.2s, left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .logo {
-      height: 70px;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-color);
+      height: 84px;
+      border-bottom: 1px solid var(--sidebar-border);
       width: 100%;
+      position: relative;
+    }
+    .logo-text {
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: -0.5px;
+    }
+    .brand-subtext {
+      font-size: 0.68rem;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      opacity: 0.65;
+    }
+    .brand-icon {
+      transition: transform 0.3s ease;
+    }
+    .logo:hover .brand-icon {
+      transform: rotate(120deg) scale(1.08);
     }
     .btn-close-sidebar {
-      background: none;
-      border: 0;
-      color: var(--text-color);
-      padding: 0;
       display: none;
       align-items: center;
       justify-content: center;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      height: calc(100vh - 84px);
+      padding-bottom: 24px;
+    }
+    .sidebar-section-header {
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 1px;
+      font-size: 0.62rem !important;
+      font-weight: 700;
+      color: var(--sidebar-text);
+      opacity: 0.45;
+      margin: 16px 24px 8px 24px;
     }
     .nav-item {
       display: flex;
       align-items: center;
-      padding: 12px 24px;
+      position: relative;
+      padding: 12px 20px;
       text-decoration: none;
-      color: var(--text-muted);
-      margin: 4px 16px;
-      border-radius: 8px;
+      color: var(--sidebar-text);
+      margin: 2px 16px;
+      border-radius: var(--radius-md);
       font-weight: 500;
-      transition: background-color 0.2s, color 0.2s;
-      min-height: 46px;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      min-height: 44px;
+    }
+    .nav-icon {
+      font-size: 1.2rem;
+      transition: var(--transition);
+      opacity: 0.75;
     }
     .nav-item:hover {
       background-color: var(--sidebar-hover-bg);
       color: var(--sidebar-hover-color);
     }
-    .nav-item.active {
-      background-color: var(--primary);
-      color: var(--text-on-primary);
-      box-shadow: var(--card-shadow);
+    .nav-item:hover .nav-icon {
+      transform: scale(1.1);
+      opacity: 1;
     }
-    .divider {
-      letter-spacing: 1px;
-      color: var(--text-muted) !important;
+    .nav-active-bar {
+      position: absolute;
+      left: -16px;
+      top: 15%;
+      height: 70%;
+      width: 4px;
+      background-color: var(--primary);
+      border-radius: 0 4px 4px 0;
+      transform: scaleX(0);
+      transition: transform 0.2s ease;
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.15) 0%, rgba(37, 99, 235, 0.02) 100%);
+      color: var(--sidebar-text-active);
+      font-weight: 600;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+    .nav-item.active .nav-icon {
+      color: var(--primary);
+      opacity: 1;
+    }
+    .nav-item.active .nav-active-bar {
+      transform: scaleX(1);
     }
     @media (max-width: 991.98px) {
       .sidebar {
-        left: -260px;
+        left: -280px;
         z-index: 1001;
       }
       .sidebar.open {

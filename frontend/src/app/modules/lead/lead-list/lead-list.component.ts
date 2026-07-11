@@ -28,6 +28,8 @@ import { LeadTypeService } from '../../../core/services/lead-type.service';
 import { CustomerLead, LeadStatus, Priority, LeadType, ApiResponse, PagedResponse } from '../../../core/models/crm.models';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 
+import { MatExpansionModule } from '@angular/material/expansion';
+
 @Component({
   selector: 'app-lead-list',
   standalone: true,
@@ -36,28 +38,16 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
     MatButtonModule, MatIconModule, MatChipsModule, MatDialogModule, MatSnackBarModule, 
     MatProgressSpinnerModule, MatProgressBarModule, MatTooltipModule, MatMenuModule, MatTabsModule,
     ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatDatepickerModule, MatNativeDateModule
+    MatDatepickerModule, MatNativeDateModule, MatExpansionModule
   ],
   template: `
-    <div class="row mb-4 align-items-center">
+    <div class="row mb-4 align-items-center animate-fade-in-up">
       <div class="col">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb mb-1">
-            <li class="breadcrumb-item"><a routerLink="/dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item active">Customer Leads</li>
-          </ol>
-        </nav>
-        <h1 class="fw-bold h2 mb-0">Customer Leads</h1>
+        <h1 class="fw-bold h2 mb-1">Customer Leads</h1>
+        <p class="text-muted small mb-0">Directory of registered leads and accounts</p>
       </div>
-      <div class="col-auto d-flex align-items-center gap-2">
-        <button mat-stroked-button color="primary" class="rounded-pill px-3" (click)="downloadTemplate()" matTooltip="Download Excel import template">
-          <mat-icon class="me-1">download</mat-icon> Template
-        </button>
-        <button mat-raised-button color="accent" class="rounded-pill px-3 bg-success text-white" (click)="fileInput.click()" [disabled]="isUploading">
-          <mat-icon class="me-1">upload_file</mat-icon> Import Excel
-        </button>
-        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".xlsx,.xls" style="display: none">
-        <button mat-raised-button color="primary" class="rounded-pill px-4" routerLink="add">
+      <div class="col-auto">
+        <button mat-raised-button color="primary" class="rounded-pill px-4 border-0" routerLink="add">
           <mat-icon class="me-1">person_add_alt</mat-icon> Add New Lead
         </button>
       </div>
@@ -74,9 +64,15 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
     </div>
 
-    <!-- Filter Panel -->
-    <div class="crm-card mb-4 p-4 shadow-sm">
-      <form [formGroup]="filterForm" class="row g-3">
+    <!-- Collapsible Filter Panel -->
+    <mat-expansion-panel [expanded]="true" class="mb-4 animate-fade-in-up">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon class="me-2 text-primary">filter_list</mat-icon> Filter Customer Leads
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      
+      <form [formGroup]="filterForm" class="row g-3 align-items-center py-2">
         <div class="col-md-3">
           <mat-form-field appearance="outline" class="w-100 mb-0">
             <mat-label>Customer Name</mat-label>
@@ -88,7 +84,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
             <mat-label>Status</mat-label>
             <mat-select formControlName="status">
               <mat-option [value]="null">All Statuses</mat-option>
-              <mat-option *ngFor="let s of statuses" [value]="s">{{s}}</mat-option>
+              <mat-option *ngFor="let s of statuses" [value]="s">{{formatEnum(s)}}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -97,7 +93,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
             <mat-label>Priority</mat-label>
             <mat-select formControlName="priority">
               <mat-option [value]="null">All Priorities</mat-option>
-              <mat-option *ngFor="let p of priorities" [value]="p">{{p}}</mat-option>
+              <mat-option *ngFor="let p of priorities" [value]="p">{{formatEnum(p)}}</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -111,115 +107,170 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
           </mat-form-field>
         </div>
         <div class="col-md-2 d-flex align-items-center gap-2">
-          <button mat-flat-button color="primary" class="h-100 flex-grow-1" (click)="applyFilters()">Filter</button>
-          <button mat-icon-button (click)="resetFilters()" matTooltip="Reset Filters">
+          <button mat-raised-button color="primary" class="flex-grow-1 border-0 rounded-pill" (click)="applyFilters()">Filter</button>
+          <button mat-icon-button (click)="resetFilters()" matTooltip="Reset Filters" class="border-btn">
             <mat-icon>refresh</mat-icon>
           </button>
         </div>
       </form>
+    </mat-expansion-panel>
+
+    <!-- Lead Statistics Row -->
+    <div class="row g-3 mb-4 animate-fade-in-up" *ngIf="!isLoading">
+      <div class="col-md-3 col-sm-6">
+        <div class="crm-card p-3 shadow-sm border-0 d-flex align-items-center" style="background-color: var(--primary-tint);">
+          <mat-icon class="me-2 text-primary" style="font-size: 24px; width: 24px; height: 24px;">people</mat-icon>
+          <div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 9px; letter-spacing: 0.5px;">Total Results</div>
+            <div class="h5 fw-bold mb-0 text-color">{{totalElements}} Leads</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="crm-card p-3 shadow-sm border-0 d-flex align-items-center" style="background-color: var(--success-tint);">
+          <mat-icon class="me-2 text-success" style="font-size: 24px; width: 24px; height: 24px;">check_circle</mat-icon>
+          <div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 9px; letter-spacing: 0.5px;">Won on Page</div>
+            <div class="h5 fw-bold mb-0 text-color">{{getStatCount('CLOSED_WON')}} Leads</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="crm-card p-3 shadow-sm border-0 d-flex align-items-center" style="background-color: var(--danger-tint);">
+          <mat-icon class="me-2 text-danger" style="font-size: 24px; width: 24px; height: 24px;">whatshot</mat-icon>
+          <div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 9px; letter-spacing: 0.5px;">Hot on Page</div>
+            <div class="h5 fw-bold mb-0 text-color">{{getHotCount()}} Leads</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="crm-card p-3 shadow-sm border-0 d-flex align-items-center" style="background-color: var(--warning-tint);">
+          <mat-icon class="me-2 text-warning" style="font-size: 24px; width: 24px; height: 24px;">fiber_new</mat-icon>
+          <div>
+            <div class="text-muted small fw-bold text-uppercase" style="font-size: 9px; letter-spacing: 0.5px;">New on Page</div>
+            <div class="h5 fw-bold mb-0 text-color">{{getStatCount('NEW')}} Leads</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Toolbar above table -->
+    <div class="toolbar-panel mb-3 animate-fade-in-up d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-outline-primary px-3 rounded-pill btn-sm" (click)="downloadTemplate()" matTooltip="Download Excel import template">
+          <i class="bi bi-download me-1"></i> Excel Template
+        </button>
+        <button class="btn btn-success text-white px-3 rounded-pill btn-sm border-0" (click)="fileInput.click()" [disabled]="isUploading">
+          <i class="bi bi-file-earmark-excel me-1"></i> Import Excel
+        </button>
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept=".xlsx,.xls" style="display: none">
+      </div>
+      <div class="text-muted small">
+        Showing {{dataSource.data.length}} records
+      </div>
     </div>
 
     <!-- Table Section -->
-    <div class="crm-card p-0 shadow-sm overflow-hidden">
-      <div class="table-container position-relative">
-        <div class="loading-overlay" *ngIf="isLoading">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-
-        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
-          <!-- Name Column -->
-          <ng-container matColumnDef="customerName">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer </th>
-            <td mat-cell *matCellDef="let element">
-              <div class="d-flex align-items-center py-2">
-                <div class="avatar me-3">{{element.customerName[0]}}</div>
-                <div>
-                  <div class="fw-bold">{{element.customerName}}</div>
-                  <div class="text-muted small"><i class="bi bi-phone me-1"></i>{{element.mobile}}</div>
-                </div>
-              </div>
-            </td>
-          </ng-container>
-
-          <!-- Type Column -->
-          <ng-container matColumnDef="leadType">
-            <th mat-header-cell *matHeaderCellDef> Type </th>
-            <td mat-cell *matCellDef="let element"> {{element.leadTypeName}} </td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
-            <td mat-cell *matCellDef="let element">
-              <span class="custom-badge" [ngClass]="getStatusClass(element.status)">
-                {{formatEnum(element.status)}}
-              </span>
-            </td>
-          </ng-container>
-
-          <!-- Priority Column -->
-          <ng-container matColumnDef="priority">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> Priority </th>
-            <td mat-cell *matCellDef="let element">
-              <span class="custom-badge" [ngClass]="getPriorityClass(element.priority)">
-                {{formatEnum(element.priority)}}
-              </span>
-            </td>
-          </ng-container>
-
-          <!-- City Column -->
-          <ng-container matColumnDef="city">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> City </th>
-            <td mat-cell *matCellDef="let element"> {{element.city || '-'}} </td>
-          </ng-container>
-
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef class="text-end pe-4"> Actions </th>
-            <td mat-cell *matCellDef="let element" class="text-end pe-4">
-              <span [matTooltip]="isMobileValid(element.mobile) ? 'Contact via WhatsApp' : 'Invalid Mobile Number'">
-                <a mat-icon-button 
-                   class="text-success me-1"
-                   [href]="isMobileValid(element.mobile) ? getWhatsAppUrl(element.mobile, element.customerName) : 'javascript:void(0)'" 
-                   target="_blank"
-                   [style.pointer-events]="isMobileValid(element.mobile) ? 'auto' : 'none'"
-                   [style.opacity]="isMobileValid(element.mobile) ? '1' : '0.5'"
-                   [disabled]="!isMobileValid(element.mobile)"
-                   (click)="!isMobileValid(element.mobile) ? $event.preventDefault() : null">
-                  <i class="bi bi-whatsapp fs-5"></i>
-                </a>
-              </span>
-              <button mat-icon-button [matMenuTriggerFor]="menu">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item [routerLink]="['view', element.id]"><mat-icon>visibility</mat-icon> View Details</button>
-                <button mat-menu-item [routerLink]="['edit', element.id]"><mat-icon>edit</mat-icon> Edit</button>
-                <button mat-menu-item (click)="deleteLead(element)" class="text-danger"><mat-icon color="warn">delete</mat-icon> Delete</button>
-              </mat-menu>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="lead-row"></tr>
-
-          <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell p-5 text-center text-muted" colspan="6">
-              <div *ngIf="!isLoading">
-                <mat-icon class="fs-1 mb-2 opacity-50" style="width: auto; height: auto;">person_search</mat-icon>
-                <p class="mb-0">No leads found. Use "Add New Lead" to begin.</p>
-              </div>
-            </td>
-          </tr>
-        </table>
-
-        <mat-paginator [length]="totalElements"
-                       [pageSize]="pageSize"
-                       [pageSizeOptions]="[5, 10, 25, 50]"
-                       (page)="onPageChange($event)"
-                       showFirstLastButtons>
-        </mat-paginator>
+    <div class="table-container animate-fade-in-up">
+      <div class="loading-overlay" *ngIf="isLoading">
+        <mat-spinner diameter="40"></mat-spinner>
       </div>
+
+      <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSortChange($event)">
+        <!-- Name Column -->
+        <ng-container matColumnDef="customerName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Customer </th>
+          <td mat-cell *matCellDef="let element">
+            <div class="d-flex align-items-center py-2">
+              <div class="avatar-gradient-sm me-3">{{element.customerName[0].toUpperCase()}}</div>
+              <div>
+                <div class="fw-bold text-color">{{element.customerName}}</div>
+                <div class="text-muted small"><i class="bi bi-phone me-1"></i>{{element.mobile}}</div>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="leadType">
+          <th mat-header-cell *matHeaderCellDef> Type </th>
+          <td mat-cell *matCellDef="let element" class="fw-semibold"> {{element.leadTypeName}} </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="custom-badge" [ngClass]="getStatusClass(element.status)">
+              {{formatEnum(element.status)}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Priority Column -->
+        <ng-container matColumnDef="priority">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Priority </th>
+          <td mat-cell *matCellDef="let element">
+            <span class="custom-badge" [ngClass]="getPriorityClass(element.priority)">
+              {{formatEnum(element.priority)}}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- City Column -->
+        <ng-container matColumnDef="city">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> City </th>
+          <td mat-cell *matCellDef="let element"> {{element.city || '-'}} </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="text-end pe-4"> Actions </th>
+          <td mat-cell *matCellDef="let element" class="text-end pe-4">
+            <span [matTooltip]="isMobileValid(element.mobile) ? 'Contact via WhatsApp' : 'Invalid Mobile Number'">
+              <a mat-icon-button 
+                 class="whatsapp-btn me-1"
+                 [href]="isMobileValid(element.mobile) ? getWhatsAppUrl(element.mobile, element.customerName) : 'javascript:void(0)'" 
+                 target="_blank"
+                 [style.pointer-events]="isMobileValid(element.mobile) ? 'auto' : 'none'"
+                 [style.opacity]="isMobileValid(element.mobile) ? '1' : '0.5'"
+                 [disabled]="!isMobileValid(element.mobile)"
+                 (click)="!isMobileValid(element.mobile) ? $event.preventDefault() : null"
+                 aria-label="WhatsApp">
+                <i class="bi bi-whatsapp fs-5"></i>
+              </a>
+            </span>
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More Options">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item [routerLink]="['view', element.id]"><mat-icon>visibility</mat-icon> View Details</button>
+              <button mat-menu-item [routerLink]="['edit', element.id]"><mat-icon>edit</mat-icon> Edit</button>
+              <button mat-menu-item (click)="deleteLead(element)" class="text-danger"><mat-icon color="warn">delete</mat-icon> Delete</button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="lead-row"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell p-5 text-center text-muted" colspan="6">
+            <div *ngIf="!isLoading" class="py-4">
+              <mat-icon class="fs-1 mb-2 opacity-50" style="width: auto; height: auto;">person_search</mat-icon>
+              <p class="mb-0 fw-semibold">No leads found matching current filter rules.</p>
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <mat-paginator [length]="totalElements"
+                     [pageSize]="pageSize"
+                     [pageSizeOptions]="[5, 10, 25, 50]"
+                     (page)="onPageChange($event)"
+                     showFirstLastButtons>
+      </mat-paginator>
     </div>
   `,
   styles: [`
@@ -232,37 +283,46 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
       z-index: 10;
       display: flex; justify-content: center; align-items: center;
     }
-    .avatar {
-      width: 40px; height: 40px; 
-      background-color: var(--surface-2); color: var(--primary);
+    .avatar-gradient-sm {
+      width: 36px; height: 36px; 
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: #ffffff;
       border-radius: 50%; display: flex; 
       align-items: center; justify-content: center;
-      font-weight: bold; border: 2px solid var(--border);
-      box-shadow: var(--card-shadow);
+      font-weight: bold; font-size: 13px;
+      box-shadow: var(--shadow-sm);
     }
-    .lead-row:hover { background-color: var(--sidebar-hover-bg) !important; cursor: pointer; }
-    .custom-badge {
-      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+    .text-color {
+      color: var(--text);
     }
-    .status-new { background-color: #e0f2fe; color: #0369a1; }
-    .status-contacted { background-color: #f1f5f9; color: #475569; }
-    .status-interested { background-color: #dcfce7; color: #15803d; }
-    .status-hot { background-color: #fee2e2; color: #b91c1c; }
-    .status-warm { background-color: #fef3c7; color: #92400e; }
-    .status-cold { background-color: #f3f4f6; color: #374151; }
-    .status-closed { background-color: #dcfce7; color: #166534; border: 1px solid #bdf2ce; }
+    .lead-row {
+      transition: var(--transition);
+    }
     .upload-progress-container {
       background-color: var(--surface-2);
-      border-color: var(--border) !important;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       color: var(--text);
+    }
+    .whatsapp-btn {
+      color: var(--accent) !important;
+      transition: var(--transition);
+    }
+    .whatsapp-btn:hover {
+      background-color: var(--accent-tint) !important;
+      transform: scale(1.05);
+    }
+    .border-btn {
+      border: 1px solid var(--border) !important;
+      border-radius: 50%;
     }
     .spinner-icon {
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
     }
   `]
 })
@@ -440,9 +500,14 @@ export class LeadListComponent implements OnInit {
   getStatusClass(status: string) {
     switch (status) {
       case 'NEW': return 'status-new';
+      case 'CONTACTED': return 'status-contacted';
       case 'INTERESTED': return 'status-interested';
+      case 'FOLLOW_UP': return 'status-warm';
+      case 'VISIT_SCHEDULED': return 'status-contacted';
+      case 'NEGOTIATION': return 'status-negotiation';
       case 'CLOSED_WON': return 'status-closed';
       case 'CLOSED_LOST': return 'status-hot';
+      case 'NOT_INTERESTED': return 'status-cold';
       default: return 'status-contacted';
     }
   }
@@ -452,6 +517,7 @@ export class LeadListComponent implements OnInit {
       case 'HOT': return 'status-hot';
       case 'WARM': return 'status-warm';
       case 'COLD': return 'status-cold';
+      case 'NOT_CUSTOMER': return 'status-lost';
       default: return 'status-contacted';
     }
   }
@@ -523,5 +589,13 @@ export class LeadListComponent implements OnInit {
       width: '600px',
       disableClose: false
     });
+  }
+
+  getStatCount(status: string): number {
+    return this.dataSource.data.filter(l => l.status === status).length;
+  }
+
+  getHotCount(): number {
+    return this.dataSource.data.filter(l => l.priority === 'HOT').length;
   }
 }

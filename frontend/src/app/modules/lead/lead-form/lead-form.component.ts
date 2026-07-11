@@ -25,7 +25,7 @@ import { LeadType, LeadStatus, Priority } from '../../../core/models/crm.models'
     MatNativeDateModule, MatSnackBarModule, MatIconModule, MatProgressSpinnerModule
   ],
   template: `
-    <div class="row mb-4 align-items-center">
+    <div class="row mb-4 align-items-center animate-fade-in-up">
       <div class="col">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-1">
@@ -34,157 +34,174 @@ import { LeadType, LeadStatus, Priority } from '../../../core/models/crm.models'
             <li class="breadcrumb-item active">{{ isEditMode ? 'Edit' : 'Add' }} Lead</li>
           </ol>
         </nav>
-        <h1 class="fw-bold h2 mb-0">{{ isEditMode ? 'Modify' : 'Register' }} Customer Lead</h1>
+        <h1 class="fw-bold h2 mb-0 text-color">{{ isEditMode ? 'Modify' : 'Register' }} Customer Lead</h1>
       </div>
     </div>
 
-    <div class="row">
+    <div class="row animate-fade-in-up">
       <div class="col-lg-12">
-        <div class="crm-card p-4 shadow-sm border-0 position-relative">
+        <div class="crm-card p-4 shadow-sm border-0 position-relative form-card-container">
           <div class="loading-overlay rounded" *ngIf="isLoading">
             <mat-spinner diameter="40"></mat-spinner>
           </div>
 
           <form [formGroup]="leadForm" (ngSubmit)="onSubmit()">
-            <div class="row">
-              <div class="col-12 mb-3">
-                <h5 class="fw-bold text-primary border-bottom pb-2">Basic Information</h5>
+            <!-- Section 1: Customer Contact Details -->
+            <div class="crm-card shadow-sm border-0 mb-4 p-4 animate-fade-in-up">
+              <h5 class="fw-bold mb-3 d-flex align-items-center text-color border-bottom pb-2">
+                <i class="bi bi-person text-primary me-2"></i> 1. Customer Contact Details
+              </h5>
+              <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Customer Name</mat-label>
+                    <input matInput formControlName="customerName" placeholder="Full Name">
+                    <mat-error *ngIf="leadForm.get('customerName')?.hasError('required')">Name is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Mobile Number</mat-label>
+                    <input matInput formControlName="mobile" placeholder="10 Digit Number" maxlength="10">
+                    <mat-error *ngIf="leadForm.get('mobile')?.hasError('required')">Mobile is required</mat-error>
+                    <mat-error *ngIf="leadForm.get('mobile')?.hasError('pattern')">Enter valid 10-digit number</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Alternate Number</mat-label>
+                    <input matInput formControlName="alternateNumber" placeholder="Alternate phone" maxlength="15">
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Email Address</mat-label>
+                    <input matInput formControlName="email" placeholder="example@mail.com">
+                    <mat-error *ngIf="leadForm.get('email')?.hasError('email')">Invalid email format</mat-error>
+                  </mat-form-field>
+                </div>
               </div>
-              
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Customer Name</mat-label>
-                  <input matInput formControlName="customerName" placeholder="Full Name">
-                  <mat-error *ngIf="leadForm.get('customerName')?.hasError('required')">Name is required</mat-error>
-                </mat-form-field>
-              </div>
+            </div>
 
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Mobile Number</mat-label>
-                  <input matInput formControlName="mobile" placeholder="10 Digit Number" maxlength="10">
-                  <mat-error *ngIf="leadForm.get('mobile')?.hasError('required')">Mobile is required</mat-error>
-                  <mat-error *ngIf="leadForm.get('mobile')?.hasError('pattern')">Enter valid 10-digit number</mat-error>
-                </mat-form-field>
+            <!-- Section 2: Lead Classification -->
+            <div class="crm-card shadow-sm border-0 mb-4 p-4 animate-fade-in-up">
+              <h5 class="fw-bold mb-3 d-flex align-items-center text-color border-bottom pb-2">
+                <i class="bi bi-bookmark-star text-primary me-2"></i> 2. Lead Classification
+              </h5>
+              <div class="row g-3">
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Lead Type</mat-label>
+                    <mat-select formControlName="leadTypeId">
+                      <mat-option *ngFor="let type of leadTypes" [value]="type.id">{{type.leadTypeName}}</mat-option>
+                    </mat-select>
+                    <mat-error *ngIf="leadForm.get('leadTypeId')?.hasError('required')">Lead type is required</mat-error>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Status</mat-label>
+                    <mat-select formControlName="status">
+                      <mat-option *ngFor="let s of statuses" [value]="s">{{s?.replace('_', ' ')}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Priority</mat-label>
+                    <mat-select formControlName="priority">
+                      <mat-option *ngFor="let p of priorities" [value]="p">{{p?.replace('_', ' ')}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Lead Source</mat-label>
+                    <input matInput formControlName="leadSource" placeholder="e.g. Website, Referral">
+                  </mat-form-field>
+                </div>
               </div>
+            </div>
 
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Alternate Number</mat-label>
-                  <input matInput formControlName="alternateNumber" placeholder="Alternate phone" maxlength="15">
-                </mat-form-field>
+            <!-- Section 3: Representative Schedules -->
+            <div class="crm-card shadow-sm border-0 mb-4 p-4 animate-fade-in-up">
+              <h5 class="fw-bold mb-3 d-flex align-items-center text-color border-bottom pb-2">
+                <i class="bi bi-calendar-event text-primary me-2"></i> 3. Assignments & Schedules
+              </h5>
+              <div class="row g-3">
+                <div class="col-md-4 col-sm-12">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Assigned Executive</mat-label>
+                    <input matInput formControlName="assignedExecutive" placeholder="Executive Name">
+                  </mat-form-field>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Visit Date</mat-label>
+                    <input matInput [matDatepicker]="visitDatePicker" formControlName="visitDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="visitDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #visitDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-4 col-sm-6">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Next Follow-up Date</mat-label>
+                    <input matInput [matDatepicker]="followupDatePicker" formControlName="nextFollowupDate">
+                    <mat-datepicker-toggle matIconSuffix [for]="followupDatePicker"></mat-datepicker-toggle>
+                    <mat-datepicker #followupDatePicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
               </div>
+            </div>
 
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Email Address</mat-label>
-                  <input matInput formControlName="email" placeholder="example@mail.com">
-                  <mat-error *ngIf="leadForm.get('email')?.hasError('email')">Invalid email format</mat-error>
-                </mat-form-field>
+            <!-- Section 4: Geography & Location details -->
+            <div class="crm-card shadow-sm border-0 mb-4 p-4 animate-fade-in-up">
+              <h5 class="fw-bold mb-3 d-flex align-items-center text-color border-bottom pb-2">
+                <i class="bi bi-geo-alt text-primary me-2"></i> 4. Location Details
+              </h5>
+              <div class="row g-3">
+                <div class="col-md-4 col-sm-12">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city">
+                  </mat-form-field>
+                </div>
+                <div class="col-md-8 col-sm-12">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Address</mat-label>
+                    <input matInput formControlName="address">
+                  </mat-form-field>
+                </div>
               </div>
+            </div>
 
-              <div class="col-12 mt-3 mb-3">
-                <h5 class="fw-bold text-primary border-bottom pb-2">Classification</h5>
+            <!-- Section 5: Log & Requirement Specifications -->
+            <div class="crm-card shadow-sm border-0 mb-4 p-4 animate-fade-in-up">
+              <h5 class="fw-bold mb-3 d-flex align-items-center text-color border-bottom pb-2">
+                <i class="bi bi-file-earmark-text text-primary me-2"></i> 5. Requirements & Discussion
+              </h5>
+              <div class="row g-3">
+                <div class="col-12">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Requirement Details</mat-label>
+                    <textarea matInput formControlName="requirement" rows="2"></textarea>
+                  </mat-form-field>
+                </div>
+                <div class="col-12">
+                  <mat-form-field appearance="outline" class="w-100">
+                    <mat-label>Discussion Details</mat-label>
+                    <textarea matInput formControlName="discussionDetails" rows="2" placeholder="Detail notes from discussion..."></textarea>
+                  </mat-form-field>
+                </div>
               </div>
+            </div>
 
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Lead Type</mat-label>
-                  <mat-select formControlName="leadTypeId">
-                    <mat-option *ngFor="let type of leadTypes" [value]="type.id">{{type.leadTypeName}}</mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="leadForm.get('leadTypeId')?.hasError('required')">Lead type is required</mat-error>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Status</mat-label>
-                  <mat-select formControlName="status">
-                    <mat-option *ngFor="let s of statuses" [value]="s">{{s}}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Priority</mat-label>
-                  <mat-select formControlName="priority">
-                    <mat-option *ngFor="let p of priorities" [value]="p">{{p}}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Lead Source</mat-label>
-                  <input matInput formControlName="leadSource" placeholder="e.g. Website, Referral">
-                </mat-form-field>
-              </div>
-
-              <div class="col-12 mt-3 mb-3">
-                <h5 class="fw-bold text-primary border-bottom pb-2">Location & Details</h5>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>City</mat-label>
-                  <input matInput formControlName="city">
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Assigned Executive</mat-label>
-                  <input matInput formControlName="assignedExecutive" placeholder="Executive Name">
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Visit Date</mat-label>
-                  <input matInput [matDatepicker]="visitDatePicker" formControlName="visitDate">
-                  <mat-datepicker-toggle matIconSuffix [for]="visitDatePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #visitDatePicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-
-              <div class="col-md-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Next Follow-up Date</mat-label>
-                  <input matInput [matDatepicker]="followupDatePicker" formControlName="nextFollowupDate">
-                  <mat-datepicker-toggle matIconSuffix [for]="followupDatePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #followupDatePicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-
-              <div class="col-12 mb-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Address</mat-label>
-                  <input matInput formControlName="address">
-                </mat-form-field>
-              </div>
-
-              <div class="col-12 mb-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Requirement Details</mat-label>
-                  <textarea matInput formControlName="requirement" rows="2"></textarea>
-                </mat-form-field>
-              </div>
-
-              <div class="col-12 mb-3">
-                <mat-form-field appearance="outline" class="w-100">
-                  <mat-label>Discussion Details</mat-label>
-                  <textarea matInput formControlName="discussionDetails" rows="2" placeholder="Detail notes from discussion..."></textarea>
-                </mat-form-field>
-              </div>
-
-              <div class="col-12 pt-4 d-flex gap-2">
-                <button mat-raised-button color="primary" type="submit" [disabled]="leadForm.invalid || isSaving" class="px-5 py-2">
-                  <mat-icon class="me-1">save</mat-icon> {{ isSaving ? 'Saving...' : 'Save Lead' }}
-                </button>
-                <button mat-button type="button" routerLink="/leads" class="px-4">Cancel</button>
-              </div>
+            <!-- Action buttons -->
+            <div class="d-flex gap-2 justify-content-start animate-fade-in-up">
+              <button mat-raised-button color="primary" type="submit" [disabled]="leadForm.invalid || isSaving" class="rounded-pill px-5">
+                <mat-icon class="me-1">save</mat-icon> {{ isSaving ? 'Saving...' : 'Save Lead' }}
+              </button>
+              <button mat-outlined-button type="button" routerLink="/leads" class="rounded-pill px-4">Cancel</button>
             </div>
           </form>
         </div>
@@ -192,6 +209,17 @@ import { LeadType, LeadStatus, Priority } from '../../../core/models/crm.models'
     </div>
   `,
   styles: [`
+    .text-color {
+      color: var(--text);
+    }
+    .section-header {
+      font-size: 1rem !important;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .form-card-container {
+      background-color: var(--surface) !important;
+    }
     .loading-overlay {
       position: absolute; top:0; left:0; right:0; bottom:0;
       background: var(--bg); opacity: 0.8; z-index: 10;

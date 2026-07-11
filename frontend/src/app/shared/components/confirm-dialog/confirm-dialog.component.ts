@@ -13,8 +13,8 @@ import { MatButtonModule } from '@angular/material/button';
       <p class="text-muted">{{ data.message }}</p>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
-      <button mat-button (click)="onDismiss()">Cancel</button>
-      <button mat-raised-button [color]="data.confirmColor || 'primary'" (click)="onConfirm()">
+      <button mat-button (click)="onDismiss()" class="rounded-pill">Cancel</button>
+      <button mat-raised-button [color]="data.confirmColor || 'primary'" (click)="onConfirm()" class="rounded-pill px-4">
         {{ data.confirmText || 'Confirm' }}
       </button>
     </mat-dialog-actions>

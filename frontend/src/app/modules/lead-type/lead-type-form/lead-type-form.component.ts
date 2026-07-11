@@ -44,8 +44,8 @@ import { LeadType } from '../../../core/models/crm.models';
       </mat-dialog-content>
       
       <mat-dialog-actions align="end" class="mb-2">
-        <button mat-button type="button" (click)="onCancel()">Cancel</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="typeForm.invalid || isSaving">
+        <button mat-button type="button" (click)="onCancel()" class="rounded-pill">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="typeForm.invalid || isSaving" class="rounded-pill px-4">
           {{ isSaving ? 'Saving...' : 'Save Changes' }}
         </button>
       </mat-dialog-actions>

@@ -47,8 +47,8 @@ import { FollowUpService } from '../../../core/services/follow-up.service';
         </div>
       </mat-dialog-content>
       <mat-dialog-actions align="end" class="mb-2">
-        <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Save</button>
+        <button mat-button type="button" (click)="dialogRef.close()" class="rounded-pill">Cancel</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid" class="rounded-pill px-4">Save</button>
       </mat-dialog-actions>
     </form>
   `

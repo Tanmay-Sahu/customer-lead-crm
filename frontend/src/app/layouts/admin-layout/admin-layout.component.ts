@@ -24,7 +24,7 @@ import { SidebarService } from '../../core/services/sidebar.service';
         <app-navbar></app-navbar>
         
         <div class="content">
-          <div class="container-fluid py-4">
+          <div class="container-fluid py-4 px-0">
             <router-outlet></router-outlet>
           </div>
         </div>
@@ -42,7 +42,7 @@ import { SidebarService } from '../../core/services/sidebar.service';
     }
     .main-panel {
       flex: 1;
-      margin-left: 260px;
+      margin-left: 280px;
       display: flex;
       flex-direction: column;
       transition: margin-left 0.3s ease;
@@ -50,13 +50,16 @@ import { SidebarService } from '../../core/services/sidebar.service';
     }
     .content {
       flex: 1;
-      padding: 0 15px;
+      padding: 0 24px;
       min-width: 0;
     }
     .sidebar-backdrop {
       display: none;
     }
     @media (max-width: 991.98px) {
+      .content {
+        padding: 0 15px;
+      }
       .main-panel {
         margin-left: 0;
       }

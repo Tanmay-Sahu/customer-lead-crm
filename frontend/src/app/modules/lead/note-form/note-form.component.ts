@@ -31,8 +31,8 @@ import { NoteService } from '../../../core/services/note.service';
         </mat-form-field>
       </mat-dialog-content>
       <mat-dialog-actions align="end" class="mb-2">
-        <button mat-button type="button" (click)="dialogRef.close()">Cancel</button>
-        <button mat-raised-button color="accent" type="submit" [disabled]="form.invalid || isSaving">
+        <button mat-button type="button" (click)="dialogRef.close()" class="rounded-pill">Cancel</button>
+        <button mat-raised-button color="accent" type="submit" [disabled]="form.invalid || isSaving" class="rounded-pill px-4">
           {{ isSaving ? 'Saving...' : (isEditMode ? 'Update Note' : 'Add Note') }}
         </button>
       </mat-dialog-actions>
